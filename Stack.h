@@ -1,4 +1,9 @@
 #pragma once 
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+#define MaxLen 201
 
 template <class T>
 class TStack
@@ -15,10 +20,15 @@ public:
 	bool IsEmpty();
 	bool IsFull();
 	T Top();
-	T Top();
+	T Pop();
 	void Push(const T& n);
 	int DetectorOfBrackets2007(char *str);
+	void Clear()
+	{
+		Index = -1;
+	}
 };
+
 template <class T>
 TStack <T>::TStack(int len = 10)
 {
@@ -45,7 +55,7 @@ TStack <T>::TStack(const TStack& s)
 }
 
 template <class T>
-TStack <T>::TStack& operator=(const TStack& s)
+TStack <T>& TStack<T>::operator=(const TStack& s)
 {
 	if (MaxSize != s.MaxSize)
 	{
@@ -116,3 +126,147 @@ int TStack <T>::DetectorOfBrackets2007(char *str)
 		return 1;
 	else return 0;
 }
+
+//----------------------------------------------------------------------------------
+
+class TParser
+{
+private:
+	TStack<char> st_c;
+	TStack<double> st_d;
+	char inf[MaxLen];
+public:
+	TParser(char *s):st_d(100),st_c(100)
+	{
+		if (s == NULL) 
+			inf [0] = '\0';
+		else 
+			strcpy(inf,s);
+	}
+	int Priority(char ch)
+	{
+		int n;
+		switch (n)
+		{
+		case '(': return 0;
+		case ')': return 0;
+		case '+': return 1;
+		case '-': return 1;
+		case '*': return 2;
+		case '/': return 2;
+		case '^': return 3;
+		}
+	}
+	bool IsOper(char ch)
+	{
+		if ((ch=='+')||(ch=='-')||(ch=='*')||(ch=='/')||(ch=='^'))
+			return true;
+		else return false;
+	}
+	bool IsNumber(char ch)
+	{
+		if ((ch>='0' && ch<=9))
+			return true;
+		else return false;
+	}
+	double ExNumber(char *s, int& len)
+	{
+		int i = 0;
+		double tmp = atof(s);
+		while (s[i]!='\0')
+			if (IsNumber(s[i]))
+				i++;
+			else break;
+			len = i;
+			return tmp;
+	}
+	double CalcP()
+	{
+
+		st_d.Clear();
+		st_c.Clear();
+		int i = 0;
+		int len;
+		st_c.Push('=');
+		while (inf[i]!='\0')
+		{
+			if (IsNumber(inf[i]))
+			{
+				double tmp = ExNumber(&inf[i], len);
+				st_d.Push(tmp);
+				i+=len - 1;
+			}
+			else if (inf[i]=='(')
+				st_c.Push(inf[i]);
+			else if (inf[i]==')')
+			{
+				char tmpc = st_c.Pop();
+				while (tmpc!='(')
+				{
+					double op2 = st_d.Pop();
+					double op1 = st_d.Pop();
+					switch (tmpc)
+					{
+					case '+': st_d.Push(op1+op2);
+						break;
+					case '-': st_d.Push(op1-op2);
+						break;
+					case '*': st_d.Push(op1*op2);
+						break;
+					case '/': st_d.Push(op1/op2);
+						break;
+					case '^': st_d.Push(pow(op1,op2));
+						break;
+					}
+					tmpc = st_c.Pop();
+				}
+			}
+			else if (IsOper(inf[i]))
+			{
+				char tmpch = st_c.Pop();
+				while (Priority(tmpch)>=Priority(inf[i]))
+				{
+					double op2 = st_d.Pop();
+					double op1 = st_d.Pop();
+					switch (tmpch)
+					{ 
+						case '+': st_d.Push(op1+op2);
+						break;
+					case '-': st_d.Push(op1-op2);
+						break;
+					case '*': st_d.Push(op1*op2);
+						break;
+					case '/': st_d.Push(op1/op2);
+						break;
+					case '^': st_d.Push(pow(op1,op2));
+						break;
+					}
+					tmpch = st_c.Pop();
+				}
+				st_c.Push(tmpch);
+				st_c.Push(inf[i]);
+			}
+			i++
+		}
+		char tmpch = st_c.Pop();
+		while (tmpch!='=')
+		{
+			double op2 = st_d.Pop();
+			double op1 = st_d.Pop();
+			switch (tmpch)
+			{
+				case '+': st_d.Push(op1+op2);
+						break;
+					case '-': st_d.Push(op1-op2);
+						break;
+					case '*': st_d.Push(op1*op2);
+						break;
+					case '/': st_d.Push(op1/op2);
+						break;
+					case '^': st_d.Push(pow(op1,op2));
+						break;
+			}
+			tmpch = st_c.Pop();
+		}
+		return st_d.Pop();
+};
