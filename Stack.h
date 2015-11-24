@@ -92,7 +92,7 @@ template <class T>
 T TStack <T>::Pop()
 {
 	if (Index < 0)
-		throw Index;
+		cout<<"kek";
 	return mas[Index--];
 }
 
@@ -135,6 +135,7 @@ private:
 	TStack<char> st_c;
 	TStack<double> st_d;
 	char inf[MaxLen];
+	char post[MaxLen];
 public:
 	TParser(char *s):st_d(100),st_c(100)
 	{
@@ -146,7 +147,7 @@ public:
 	int Priority(char ch)
 	{
 		int n;
-		switch (n)
+		switch (ch)
 		{
 		case '(': return 0;
 		case ')': return 0;
@@ -180,14 +181,84 @@ public:
 			len = i;
 			return tmp;
 	}
+
+	void InfToPost()
+	{
+		int i = 0; int j = 0;
+		st_c.Push('=');
+		while (inf[i]!='\0')
+		{
+			if (IsNumber(inf[i]))
+			{
+				post[j] = inf[i];
+				j++;
+			}
+			else if (inf[i] == '(')
+				st_c.Push(inf[i]);
+			else if (inf[i]==')')
+			{
+				char tmp = st_c.Pop();
+				while (tmp!='(')
+				{
+					post[j] = tmp;
+					j++;
+					tmp = st_c.Pop();
+				}
+			}
+			else if(IsOper(inf[i]))
+			{
+				char tmp = st_c.Pop();
+				while (Priority(tmp)>=Priority(inf[i]))
+				{
+					post[j] = tmp;
+					i++;
+					tmp = st_c.Pop();
+				}
+				st_c.Push(tmp);
+				st_c.Push(inf[i]);
+			}
+			i++;
+		}
+	}
+
+	double CalcPost()
+	{
+		int i = 0; st_d.Clear();
+		while ((post[i]!='\0')&&(post[i]!='='))
+		{
+			if (IsNumber(post[i]))
+				st_d.Push(post[i] - '0');
+			if (IsOper(post[i]))
+			{
+				double op1,op2;
+				op2 = st_d.Pop();
+				op1 = st_d.Pop();
+				switch (post[i])
+				{
+				case '+': st_d.Push(op1+op2);
+						break;
+					case '-': st_d.Push(op1-op2);
+						break;
+					case '*': st_d.Push(op1*op2);
+						break;
+					case '/': st_d.Push(op1/op2);
+						break;
+					case '^': st_d.Push(pow(op1,op2));
+						break;
+				}
+			}
+			i++;
+		}
+		return st_d.Pop();
+	}
+
+
 	double CalcP()
 	{
-
 		st_d.Clear();
 		st_c.Clear();
 		int i = 0;
 		int len;
-		st_c.Push('=');
 		while (inf[i]!='\0')
 		{
 			if (IsNumber(inf[i]))
@@ -246,7 +317,7 @@ public:
 				st_c.Push(tmpch);
 				st_c.Push(inf[i]);
 			}
-			i++
+			i++;
 		}
 		char tmpch = st_c.Pop();
 		while (tmpch!='=')
@@ -269,4 +340,5 @@ public:
 			tmpch = st_c.Pop();
 		}
 		return st_d.Pop();
-};
+}
+	};
