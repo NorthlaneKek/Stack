@@ -142,7 +142,7 @@ public:
 		if (s == NULL) 
 			inf [0] = '\0';
 		else 
-			strcpy(inf,s);
+			strcpy_s(inf,s);
 	}
 	int Priority(char ch)
 	{
@@ -156,6 +156,7 @@ public:
 		case '*': return 2;
 		case '/': return 2;
 		case '^': return 3;
+		default: return -1;
 		}
 	}
 	bool IsOper(char ch)
@@ -166,7 +167,7 @@ public:
 	}
 	bool IsNumber(char ch)
 	{
-		if ((ch>='0' && ch<=9))
+		if ((ch>='0' && ch<='9'))
 			return true;
 		else return false;
 	}
@@ -257,6 +258,7 @@ public:
 	{
 		st_d.Clear();
 		st_c.Clear();
+		st_c.Push('=');
 		int i = 0;
 		int len;
 		while (inf[i]!='\0')

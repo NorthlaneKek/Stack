@@ -7,9 +7,10 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char st[8] = {'(', '3','+','5',')','*','4','\0'};
+	char st[8] = {'(', '3.3','+','5',')','*','4','\0'};
 	TParser infin(st);
 	TParser infin1(st);
+	cout<<st<<endl;
 	double d;
 	d = infin.CalcP();
 	cout<<d<<'\0';
