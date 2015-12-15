@@ -137,6 +137,12 @@ private:
 	char inf[MaxLen];
 	char post[MaxLen];
 public:
+	friend ostream& operator<<(ostream &out, TParser &v)
+  {
+	  for (int i = 0; v.post[i]!='\0'; i++)
+      out<<v.post[i]<<' ';
+    return out;
+  }
 	TParser(char *s):st_d(100),st_c(100)
 	{
 		if (s == NULL) 
@@ -175,10 +181,8 @@ public:
 	{
 		int i = 0;
 		double tmp = atof(s);
-		while (s[i]!='\0')
-			if (IsNumber(s[i]))
+		while (IsNumber(s[i])||s[i]=='.')
 				i++;
-			else break;
 			len = i;
 			return tmp;
 	}
@@ -220,7 +224,14 @@ public:
 			}
 			i++;
 		}
+		while (st_c.Top() != '=')
+		{
+			post[j] = st_c.Pop();
+			j++;
+		}
+		post[j] = '\0';
 	}
+
 
 	double CalcPost()
 	{
